@@ -16,8 +16,13 @@
     </dependency>
   </dependencies>
   
-  <distributionManagement>
-    <snapshotRepository>
+<distributionManagement>
+    <repository>
+        <id>central</id>
+        <name>toolchain-releases</name>
+        <url>http://toolchain.phillyair.com:8081/artifactory/libs-release-local</url>
+    </repository>
+	<snapshotRepository>
         <id>snapshots</id>
         <name>toolchain-snapshots</name>
         <url>http://toolchain.phillyair.com:8081/artifactory/libs-snapshot-local</url>
