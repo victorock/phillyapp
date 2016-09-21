@@ -15,8 +15,12 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <scm>
+    <connection>scm:git:https://toolchain.phillyair.com/pcorneli/phillyapp.git</connection>
+  </scm>  
   
-<distributionManagement>
+  <distributionManagement>
     <repository>
         <id>central</id>
         <name>toolchain-releases</name>
@@ -27,9 +31,23 @@
         <name>toolchain-snapshots</name>
         <url>http://toolchain.phillyair.com:8081/artifactory/libs-snapshot-local</url>
     </snapshotRepository>
-</distributionManagement>
+  </distributionManagement>
 
   <build>
+    <plugins>
+	  <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>versions-maven-plugin</artifactId>
+            <version>2.1</version>
+       </plugin>
+	   <plugin>
+            <artifactId>maven-scm-plugin</artifactId>
+            <version>1.8.1</version>
+            <configuration>
+                <tag>${project.artifactId}-${project.version}</tag>
+            </configuration>
+       </plugin>
+	</plugins>   
     <finalName>phillyapp</finalName>
   </build>
 </project>
