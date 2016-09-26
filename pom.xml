@@ -5,7 +5,7 @@
   <artifactId>phillyapp</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>phillyapp Maven Webapp</name>
+  <name>PhillyApp Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
