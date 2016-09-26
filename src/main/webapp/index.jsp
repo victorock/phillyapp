@@ -9,6 +9,6 @@
 <html>
 <body>
 <h2>Hello World!</h2>
-<h3>App Version: <%= mainVer %></h3>
+<h6>App Version: <%= mainVer %></h6>
 </body>
 </html>
