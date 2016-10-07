@@ -8,7 +8,7 @@
 %>
 <html>
 <body>
-<h2>Hello Discovery!</h2>
+<h2>Hello Daimler!</h2>
 <h6>App Version: <%= mainVer %></h6>
 </body>
 </html>
