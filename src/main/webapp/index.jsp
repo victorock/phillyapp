@@ -8,7 +8,7 @@
 %>
 <html>
 <body>
-<h2>Hello Fujitsu</h2>
+<h2>Hello World</h2>
 <h6>App Version: <%= mainVer %></h6>
 </body>
 </html>
