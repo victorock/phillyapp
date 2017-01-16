@@ -10,6 +10,6 @@
 <body>
 <h2>Hello World</h2>
 <h6>App Version: <%= mainVer %></h6>
-<img src="crowd.jpg" alt="Image of Crowd"></img>
+<img src="crowd.jpg" alt="Image of Crowd" height=100% ></img>
 </body>
 </html>
