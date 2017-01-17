@@ -8,9 +8,9 @@
 %>
 <html>
 <body>
-<h2>Hello World!</h2>
+<h2>Hello Optima!</h2>
 <h6>App Version: <%= mainVer %></h6>
 <!--<img src="crowd.jpg" alt="Image of Crowd" height=100% ></img>-->
-<img src="logo.png" alt="Ansible Logo" height=60% ></img>
+<img src="logobreak.png" alt="Ansible Logo" height=60% ></img>
 </body>
 </html>
