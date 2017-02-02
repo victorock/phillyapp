@@ -8,7 +8,7 @@
 %>
 <html>
 <body>
-<h2>Hello London!</h2>
+<h2>Bonjour Paris!</h2>
 <h6>App Version: <%= mainVer %></h6>
 <img src="crowd.jpg" alt="Image of Crowd" width=100% ></img>
 <!-- <img src="logo.png" alt="Ansible Logo" height=60% ></img> -->
