@@ -17,19 +17,19 @@
   </dependencies>
 
   <scm>
-    <connection>scm:git:https://toolchain.phillyair.com/pcorneli/phillyapp.git</connection>
-  </scm>  
-  
+    <connection>scm:git:https://www.github.com/victorock/phillyapp.git</connection>
+  </scm>
+
   <distributionManagement>
     <repository>
         <id>central</id>
-        <name>toolchain-releases</name>
-        <url>http://toolchain.phillyair.com:8081/artifactory/libs-release-local</url>
+        <name>artifactory-releases</name>
+        <url>http://artifactory.devops.victorock.io/artifactory/libs-release-local</url>
     </repository>
 	<snapshotRepository>
         <id>snapshots</id>
-        <name>toolchain-snapshots</name>
-        <url>http://toolchain.phillyair.com:8081/artifactory/libs-snapshot-local</url>
+        <name>artifactory-snapshots</name>
+        <url>http://artifactory.devops.victorock.io/artifactory/libs-snapshot-local</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -47,7 +47,7 @@
                 <tag>${project.artifactId}-${project.version}</tag>
             </configuration>
        </plugin>
-	</plugins>   
+	</plugins>
     <finalName>phillyapp</finalName>
   </build>
 </project>
