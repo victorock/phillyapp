@@ -1,0 +1,6 @@
+*
+!.gitignore
+!requirements.yml
+!selinux/*
+!tomcat/*
+!jboss-jws3/*

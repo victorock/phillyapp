@@ -1,0 +1,7 @@
+jboss_jws3_version: 8
+jboss_jws3_http_port: 8080
+jboss_jws3_https_port: 8443
+jboss_jws3_admin_username: admin
+jboss_jws3_admin_password: adminsecret
+jboss_jws3_home: "/usr/share/tomcat{{ jboss_jwss3_version }}"
+appserver_home: "{{ jboss_jws3_home }}"

@@ -1,0 +1,40 @@
+- name: "Deploy Application in Tomcat Servers"
+  hosts: phillyapp:&tomcat-servers:&{{ environment | default('dev') }}
+  gather_facts: true
+  become: true
+
+  roles:
+    - role: victorock.linux
+      autorun: yes
+    - role: samdoran.java
+    - role: samdoran.repo-epel
+    - role: openstack.redhat-subscription
+    - role: selinux
+    - role: tomcat
+
+  tasks:
+
+    - name: "Deploy Philly Application from maven"
+      maven_artifact:
+        group_id:       "com.phillyair"
+        artifact_id:    "phillyapp"
+        extension:      war
+        repository_url: "{{ artifactory_server_url }}{{ artifactory_repo[artifactory_target] }}"
+        version:        "{{ app_release }}"
+        dest:           "{{ tomcat_home }}/webapps/phillyapp.war"
+
+    - name: "Pause Playbook"
+      pause:
+        seconds: 10
+
+    - name: "GET webpage content from application"
+      uri:
+        url: "http://localhost:8080/phillyapp/"
+        return_content: yes
+      register: webpage
+
+    - name: "Assert test the webpage content"
+      assert:
+        msg: "Webcontent does not contains 'Version: {{ app_release }}'"
+        that:
+          - "'Version: {{ app_release }}' not in webpage.content"

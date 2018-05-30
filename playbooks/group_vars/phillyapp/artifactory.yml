@@ -1,0 +1,5 @@
+artifactory_server_url: "http://artifactory.devops.victorock.io/artifactory/"
+artifactory_target: "release"
+artifactory_repo:
+  release: "libs-release-local"
+  snapshot: "libs-snapshot-local"

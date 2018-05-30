@@ -1,0 +1,19 @@
+- name: samdoran.java
+- name: samdoran.repo-epel
+- name: openstack.redhat-subscription
+- name: geerlingguy.pip
+
+- src: https://github.com/victorock/ansible-role-linux.git
+  scm: git
+  version: dev
+  name: victorock.linux
+
+- src: https://github.com/victorock/ansible-role-gce-config.git
+  scm: git
+  version: dev
+  name: victorock.gce_config
+
+- src: https://github.com/victorock/ansible-role-ansible-tower-config.git
+  scm: git
+  version: dev
+  name: victorock.ansible-tower-config

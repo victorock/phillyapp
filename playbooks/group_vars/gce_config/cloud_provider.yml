@@ -1,0 +1,5 @@
+cloud_provider:
+  provider: "gce"
+  region:   "europe-west1"
+  zone:     "europe-west1-d"
+  project:  "darkbulb-lab"
