@@ -1,0 +1,31 @@
+node {
+  // Get Artifactory server instance, defined in the Artifactory Plugin administration page.
+  def server = Artifactory.server "artifactory.devops.victorock.io"
+
+  // Create an Artifactory Maven instance.
+  def rtMaven = Artifactory.newMavenBuild()
+  def buildInfo = Artifactory.newBuildInfo()
+
+  stage('Clone Repository'){
+    git 'https://github.com/victorock/phillyapp.git'
+  }
+
+  stage('Prepare maven Configuration') {
+    rtMaven.tool = "Maven"
+    rtMaven.deployer releaseRepo:'libs-release-local', snapshotRepo:'libs-snapshot-local', server: server
+    rtMaven.resolver releaseRepo:'libs-release', snapshotRepo:'libs-snapshot', server: server
+  }
+
+  stage('Build') {
+    rtMaven.run pom: 'pom.xml', goals: 'clean install', buildInfo: buildInfo
+  }
+
+//  stage('Deploy'){
+//    rtMaven.run pom: 'pom.xml', goals: 'deploy', buildInfo: buildInfo
+//  }
+
+  stage('Deploy'){
+    server.publishBuildInfo buildInfo
+  }
+
+}

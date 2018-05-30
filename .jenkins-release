@@ -1,0 +1,95 @@
+node {
+  parameters {
+  // Application variables
+    string(name: 'tower_host',            defaultValue: 'https://ansible-tower.devops.victorock.io',  description: 'Tower Server. ex: https://ansible-tower.devops.victorock.io')
+    string(name: 'tower_credential',      defaultValue: 'ansible-tower.devops.victorock.io-devops',   description: 'Tower Credential from Credentials. ex: ansible-tower.devops.victorock.io-devops')
+    string(name: 'application_repo',      defaultValue: 'https://github.com/victorock/phillyapp.git', description: 'The Application repository')
+    string(name: 'application_branch',    defaultValue: '4.0',                                        description: 'The Repository TAG/BRANCH corresponding to the application release')
+    string(name: 'environment',           defaultValue: 'dev',                                        description: 'The environment to deploy: dev/prod')
+  }
+
+  def tower_host = "${params.tower_host}"
+  def tower_credential = "${params.tower_credential}"
+  def application_repo = "${params.application_repo}"
+  def application_branch = "${params.application_branch}"
+  def environment = "${params.environment}"
+
+  stage('Clone Repository'){
+//    sh """
+//      git clone "${params.application_repo}" --branch "${application_branch}"
+//    """
+    git name: "${application_repo}", branch: "${application_branch}"
+  }
+
+  stage('Prepare tower-cli Configuration'){
+    withCredentials([
+                      usernamePassword(
+                        credentialsId: '${tower_credential}',
+                        usernameVariable: 'tower_username',
+                        passwordVariable: 'tower_password'
+                      )
+                    ])
+    {
+
+      sh """
+        tower-cli config host "${tower_host}"
+        tower-cli config verify_ssl False
+        tower-cli config username "${tower_username}"
+        tower-cli config password "${tower_password}"
+        tower-cli config format json
+        tower-cli config verbose True
+      """
+
+    }
+  }
+
+  stage('Publish project in Tower'){
+    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+    def  artifactId = readMavenPom().getArtifactId()
+    def  version = readMavenPom().getVersion()
+
+      sh """
+        tower-cli       project create                                              \
+          --scm-type        "git"                                                   \
+          --scm-branch      "master"                                                \
+          --name            "devops-application-project: ${env.artifactId}-${env.version}"  \
+          --description     "Created by Jenkins"                                    \
+          --organization    "Demo"                                                  \
+          --insecure
+        """
+    }
+
+  stage('Publish Job Template in Tower'){
+    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+    def  artifactId = readMavenPom().getArtifactId()
+    def  version = readMavenPom().getVersion()
+
+    sh """
+    tower-cli       job_template create                                             \
+      --job-type        run                                                         \
+      --name            "devops-application-deploy: ${env.artifactId}-${env.version}"       \
+      --description     "Created by Jenkins"                                        \
+      --inventory       "devops"                                                    \
+      --project         "devops-application-project: ${env.artifactId}"                 \
+      --playbook        "playbooks/deploy.yml"                                      \
+      --credential      "devops-application-credential: ${env.artifactId}"              \
+      --extra-vars      "---
+app_release: ${env.artifactId}-${env.version}
+environment: ${env.environment}"                                                 \
+      --insecure
+    """
+  }
+
+  stage ('Deploy with Ansible Tower') {
+    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+    def  artifactId = readMavenPom().getArtifactId()
+    def  version = readMavenPom().getVersion()
+
+    sh """
+    tower-cli           job launch                                                  \
+      --job-template    "devops-application-deploy: ${env.artifactId}-${env.version}"       \
+      --inventory       "devops"                                                    \
+      --credential      "devops-application-credential: ${env.artifactId}"
+    """
+  }
+}
