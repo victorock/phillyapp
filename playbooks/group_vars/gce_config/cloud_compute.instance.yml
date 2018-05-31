@@ -1,7 +1,7 @@
 cloud_compute:
   instance:
-    jboss01:
-      name: jboss01
+    tomcat01:
+      name: tomcat01
       size: n1-standard-1
       image: rhel-7
       boot:
@@ -9,16 +9,16 @@ cloud_compute:
         persistent: no
       credential:
         username: jdacosta
-        key: jboss01-devops-victorock-io
+        key: tomcat01-devops-victorock-io
       network:
         subnet: devops-victorock-io
       tags:
         - phillyapp
-        - jboss-servers
+        - tomcat-servers
         - dev
 
-    tomcat01:
-      name: tomcat01
+    tomcat02:
+      name: tomcat02
       size: n1-standard-1
       image: rhel-7
       boot:
