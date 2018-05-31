@@ -1,2 +1,2 @@
 java_webapp_version: "{{ app_version }}"
-java_webapp_repository_url: "{{ artifactory_server_url }}/{{ artifactory_repo[app_stage] }}"
+java_webapp_repository_url: "{{ artifactory_server_url }}/{{ artifactory_repos[app_stage] }}"
