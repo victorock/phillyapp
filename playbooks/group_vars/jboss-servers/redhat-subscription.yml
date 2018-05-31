@@ -1,7 +1,0 @@
-rhsm_username: "{{ lookup('ENV', 'RHSM_USERNAME') }}"
-rhsm_password: "{{ lookup('ENV', 'RHSM_PASSWORD') }}"
-rhsm_repos:
-  - name: jws-3-for-rhel-7-server-rpms
-    state: present
-  - name: rhel-7-server-htb-rpms
-    state: absent
