@@ -35,7 +35,7 @@ node {
     }
   }
 
-  stage('Publish project in Tower'){
+  stage('Publish  in Tower'){
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     def  artifactId = readMavenPom().getArtifactId()
     def  version = readMavenPom().getVersion()
@@ -45,6 +45,7 @@ node {
           --scm-type        "git"                                                \
           --scm-branch      "${application_release}"                             \
           --scm-url         "${application_repo}"                                \
+          --scm-clean       1                                                    \
           --name            "devops-application-project: ${application_release}" \
           --description     "Created by Jenkins"                                 \
           --organization    "DEMO"                                               \
@@ -114,7 +115,7 @@ stage ('Grant job_template permissions to team in Ansible Tower') {
     sh """
     tower-cli role grant                                                        \
       --team "devops"                                                           \
-      --type "admin"                                                            \
+      --type "use"                                                              \
       --job-template    "devops-application-deploy: ${application_release}"     \
       --insecure
     """
