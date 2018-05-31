@@ -4,13 +4,13 @@ node {
     string(name: 'tower_host',            defaultValue: 'https://ansible-tower.devops.victorock.io',  description: 'Tower Server. ex: https://ansible-tower.devops.victorock.io')
     string(name: 'tower_credential',      defaultValue: 'ansible-tower.devops.victorock.io-devops',   description: 'Tower Credential from Credentials. ex: ansible-tower.devops.victorock.io-devops')
     string(name: 'application_repo',      defaultValue: '${gitlabSourceRepoHttpUrl}',                 description: 'The Application GIT repository')
-    string(name: 'application_release',   defaultValue: '${gitlabAfter}',                             description: 'The Application GIT branch')
+    string(name: 'application_tag',       defaultValue: '${gitlabAfter}',                             description: 'The Application GIT branch')
     choice(name: 'environment',           defaultValue: 'dev',                                        description: 'The environment to deploy', choices: 'dev\ntest\nprod')
   }
 
   stage('Clone Repository'){
     // Just to check if the repository exists
-    git url: "${application_repo}", tag: "${application_release}"
+    git url: "${application_repo}", tag: "${application_tag}"
   }
 
   stage('Prepare tower-cli Configuration'){
@@ -43,10 +43,10 @@ node {
       sh """
         tower-cli       project create                                           \
           --scm-type        "git"                                                \
-          --scm-branch      "${application_release}"                             \
+          --scm-branch      "${artifactId}-${version}"                           \
           --scm-url         "${application_repo}"                                \
           --scm-clean       1                                                    \
-          --name            "devops-application-project: ${application_release}" \
+          --name            "devops-application-project: ${artifactId}-${version}" \
           --description     "Created by Jenkins"                                 \
           --organization    "DEMO"                                               \
           --insecure
@@ -59,7 +59,7 @@ node {
 
     sh """
         tower-cli       project update                                          \
-          --name        "devops-application-project: ${application_release}"    \
+          --name        "devops-application-project: ${artifactId}-${version}"    \
           --monitor                                                             \
           --timeout 60                                                          \
           --insecure
@@ -76,7 +76,7 @@ node {
       tower-cli role grant                                                      \
         --team      "devops"                                                    \
         --type      "admin"                                                     \
-        --project   "devops-application-project: ${application_release}"        \
+        --project   "devops-application-project: ${artifactId}-${version}"      \
         --insecure
       """
     }
@@ -90,17 +90,18 @@ node {
     sh """
     tower-cli       job_template create                                         \
       --job-type        run                                                     \
-      --name            "devops-application-deploy: ${application_release}"     \
+      --name            "devops-application-deploy: ${artifactId}-${version}"     \
       --description     "Created by Jenkins"                                    \
       --inventory       "devops"                                                \
-      --project         "devops-application-project: ${application_release}"    \
-      --playbook        "playbooks/deploy.yml"                                  \
+      --project         "devops-application-project: ${artifactId}-${version}"    \
+      --playbook        "playbooks/main.yml"                                    \
       --credential      "devops-application-credential: ${artifactId}"          \
       --ask-inventory-on-launch 1                                               \
       --ask-credential-on-launch 1                                              \
       --forks 50                                                                \
       --extra-vars      "---
-app_version: ${application_release}
+app_version: ${version}
+app_stage: release
 environment: ${environment}"                                                    \
       --insecure
     """
@@ -116,7 +117,7 @@ stage ('Grant job_template permissions to team in Ansible Tower') {
     tower-cli role grant                                                        \
       --team "devops"                                                           \
       --type "admin"                                                            \
-      --job-template    "devops-application-deploy: ${application_release}"     \
+      --job-template    "devops-application-deploy: ${artifactId}-${version}"   \
       --insecure
     """
   }
@@ -130,11 +131,11 @@ stage ('Grant job_template permissions to team in Ansible Tower') {
 
     sh """
     tower-cli           job launch                                            \
-      --job-template    "devops-application-deploy: ${application_release}"   \
+      --job-template    "devops-application-deploy: ${artifactId}-${version}" \
       --inventory       "devops"                                              \
       --credential      "devops-application-credential: ${artifactId}"        \
       --monitor                                                               \
-      --timeout 60
+      --timeout 1800
     """
   }
 }

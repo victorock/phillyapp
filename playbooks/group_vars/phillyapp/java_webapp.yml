@@ -1,2 +1,6 @@
-java_webapp_version: "{{ app_version }}"
+java_webapp_version:        "{{ app_version }}"
 java_webapp_repository_url: "{{ artifactory_server_url }}{{ artifactory_repos[app_stage] }}"
+java_webapp_group_id:       "com.phillyair"
+java_webapp_artifact_id:    "phillyapp"
+java_webapp_extension:      "war"
+java_webapp_dir:            "/usr/share/tomcat/webapps/"
