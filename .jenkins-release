@@ -35,7 +35,7 @@ node {
     }
   }
 
-  stage('Publish  in Tower'){
+  stage('Publish project in Tower'){
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     def  artifactId = readMavenPom().getArtifactId()
     def  version = readMavenPom().getVersion()
