@@ -115,7 +115,7 @@ stage ('Grant job_template permissions to team in Ansible Tower') {
     sh """
     tower-cli role grant                                                        \
       --team "devops"                                                           \
-      --type "use"                                                              \
+      --type "admin"                                                            \
       --job-template    "devops-application-deploy: ${application_release}"     \
       --insecure
     """
@@ -124,7 +124,7 @@ stage ('Grant job_template permissions to team in Ansible Tower') {
 
 //  stage ('Deploy with Ansible Tower') {
 //
-    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+//    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
 //    def  artifactId = readMavenPom().getArtifactId()
 //    def  version = readMavenPom().getVersion()
 //
