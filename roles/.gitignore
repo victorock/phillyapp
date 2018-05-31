@@ -1,6 +1,4 @@
 *
 !.gitignore
 !requirements.yml
-!selinux/*
-!tomcat/*
-!jboss-jws3/*
+!jboss-jws3*/*
