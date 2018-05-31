@@ -10,7 +10,7 @@ node {
 
   stage('Clone Repository'){
     // Just to check if the repository exists
-    git url: '${application_repo}', branch: '${application_release}'
+    git url: '${application_repo}', tag: '${application_release}'
   }
 
   stage('Prepare tower-cli Configuration'){
