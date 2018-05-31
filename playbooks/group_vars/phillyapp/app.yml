@@ -1,2 +1,2 @@
-app_release: 1.0-SNAPSHOT
-app_stage: snapshot
+app_version: 1.0
+app_stage: "release"

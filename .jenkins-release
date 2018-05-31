@@ -3,12 +3,14 @@ node {
   // Application variables
     string(name: 'tower_host',            defaultValue: 'https://ansible-tower.devops.victorock.io',  description: 'Tower Server. ex: https://ansible-tower.devops.victorock.io')
     string(name: 'tower_credential',      defaultValue: 'ansible-tower.devops.victorock.io-devops',   description: 'Tower Credential from Credentials. ex: ansible-tower.devops.victorock.io-devops')
-    string(name: 'application_repo',      defaultValue: 'https://github.com/victorock/phillyapp.git', description: 'The Application repository')
-    string(name: 'environment',           defaultValue: 'dev',                                        description: 'The environment to deploy: dev/prod')
+    string(name: 'application_repo',      defaultValue: 'https://gitlab.devops.victorock.io/victorock/phillyapp.git', description: 'The Application GIT repository')
+    string(name: 'application_release',   defaultValue: 'master',                                     description: 'The Application GIT branch')
+    choice(name: 'environment',           defaultValue: 'dev',                                        description: 'The environment to deploy', choices: 'dev\ntest\nprod')
   }
 
   stage('Clone Repository'){
-    git 'https://github.com/victorock/phillyapp.git'
+    // Just to check if the repository exists
+    git url: '${application_repo}', branch: '${application_release}'
   }
 
   stage('Prepare tower-cli Configuration'){
@@ -41,15 +43,28 @@ node {
       sh """
         tower-cli       project create                                              \
           --scm-type        "git"                                                   \
-          --scm-branch      "master"                                                \
+          --scm-branch      "${application_release}"                                 \
           --scm-url         "${application_repo}"                                   \
           --name            "devops-application-project: ${artifactId}-${version}"  \
           --description     "Created by Jenkins"                                    \
           --organization    "DEMO"                                                  \
           --insecure
         """
-    }
+  }
+  stage('Refresh project in Tower'){
+    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+    def  artifactId = readMavenPom().getArtifactId()
+    def  version = readMavenPom().getVersion()
 
+    sh """
+        tower-cli       project update                                              \
+          --name        "devops-application-project: ${artifactId}-${version}"      \
+          --monitor                                                                 \
+          --timeout 60                                                              \
+          --insecure
+        """
+
+  }
   stage('Publish Job Template in Tower'){
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     def  artifactId = readMavenPom().getArtifactId()
@@ -65,11 +80,27 @@ node {
       --playbook        "playbooks/deploy.yml"                                      \
       --credential      "devops-application-credential: ${artifactId}"              \
       --extra-vars      "---
-app_release: ${artifactId}-${version}
-environment: ${environment}"                                                 \
+app_version: ${artifactId}-${version}
+environment: ${environment}"                                                        \
       --insecure
     """
   }
+
+stage ('Grant Permissions to team in Ansible Tower') {
+
+    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+    def  artifactId = readMavenPom().getArtifactId()
+    def  version = readMavenPom().getVersion()
+
+    sh """
+    tower-cli role grant                                                          \
+      --team "devops"                                                             \
+      --type "admin"                                                              \
+      --job-template    "devops-application-deploy: ${artifactId}-${version}"     \
+      --insecure
+    """
+  }
+
 
   stage ('Deploy with Ansible Tower') {
 
