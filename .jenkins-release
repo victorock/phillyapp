@@ -93,7 +93,7 @@ node {
       --name            "devops-application-deploy: ${artifactId}-${version}"     \
       --description     "Created by Jenkins"                                    \
       --inventory       "devops"                                                \
-      --project         "devops-application-project: ${artifactId}-${version}"    \
+      --project         "devops-application-project: ${artifactId}-${version}"  \
       --playbook        "playbooks/main.yml"                                    \
       --credential      "devops-application-credential: ${artifactId}"          \
       --ask-inventory-on-launch 1                                               \
