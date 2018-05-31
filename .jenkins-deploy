@@ -1,16 +1,16 @@
 node {
   parameters {
   // Application variables
-    string(name: 'tower_host',            defaultValue: 'https://ansible-tower.devops.victorock.io',  description: 'Tower Server. ex: https://ansible-tower.devops.victorock.io')
-    string(name: 'tower_credential',      defaultValue: 'ansible-tower.devops.victorock.io-devops',   description: 'Tower Credential from Credentials. ex: ansible-tower.devops.victorock.io-devops')
-    string(name: 'application_repo',      defaultValue: '${gitlabSourceRepoHttpUrl}',                 description: 'The Application GIT repository')
-    string(name: 'application_release',   defaultValue: '${gitlabAfter}',                             description: 'The Application GIT branch')
-    choice(name: 'environment',           defaultValue: 'dev',                                        description: 'The environment to deploy', choices: 'dev\ntest\nprod')
+    string(name: 'tower_host',            defaultValue: 'https://ansible-tower.devops.victorock.io',                  description: 'Tower Server. ex: https://ansible-tower.devops.victorock.io')
+    string(name: 'tower_credential',      defaultValue: 'ansible-tower.devops.victorock.io-devops',                   description: 'Tower Credential from Credentials. ex: ansible-tower.devops.victorock.io-devops')
+    string(name: 'application_repo',      defaultValue: 'https://gitlab.devops.victorock.io/victorock/phillyapp.git', description: 'The Application GIT repository')
+    string(name: 'application_release',   defaultValue: 'master',                                                     description: 'The Application GIT branch')
+    choice(name: 'environment',           defaultValue: 'dev',                                                        description: 'The environment to deploy', choices: 'dev\ntest\nprod')
   }
 
   stage('Clone Repository'){
     // Just to check if the repository exists
-    git url: "${application_repo}", tag: "${application_release}"
+    git url: "${application_repo}", branch: "${application_release}"
   }
 
   stage('Prepare tower-cli Configuration'){
@@ -122,7 +122,7 @@ stage ('Grant job_template permissions to team in Ansible Tower') {
   }
 
 
-  stage ('Release with Ansible Tower') {
+  stage ('Deploy with Ansible Tower') {
 
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     def  artifactId = readMavenPom().getArtifactId()
