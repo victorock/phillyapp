@@ -4,7 +4,7 @@ node {
     string(name: 'tower_host',            defaultValue: 'https://ansible-tower.devops.victorock.io',  description: 'Tower Server. ex: https://ansible-tower.devops.victorock.io')
     string(name: 'tower_credential',      defaultValue: 'ansible-tower.devops.victorock.io-devops',   description: 'Tower Credential from Credentials. ex: ansible-tower.devops.victorock.io-devops')
     string(name: 'application_repo',      defaultValue: 'https://gitlab.devops.victorock.io/victorock/phillyapp.git', description: 'The Application GIT repository')
-    string(name: 'application_release',   defaultValue: 'master',                                     description: 'The Application GIT branch')
+    string(name: 'application_release',   defaultValue: 'phillyapp-1.0',                              description: 'The Application GIT branch')
     choice(name: 'environment',           defaultValue: 'dev',                                        description: 'The environment to deploy', choices: 'dev\ntest\nprod')
   }
 
@@ -41,13 +41,13 @@ node {
     def  version = readMavenPom().getVersion()
 
       sh """
-        tower-cli       project create                                              \
-          --scm-type        "git"                                                   \
-          --scm-branch      "${application_release}"                                 \
-          --scm-url         "${application_repo}"                                   \
-          --name            "devops-application-project: ${artifactId}-${version}"  \
-          --description     "Created by Jenkins"                                    \
-          --organization    "DEMO"                                                  \
+        tower-cli       project create                                           \
+          --scm-type        "git"                                                \
+          --scm-branch      "${application_release}"                             \
+          --scm-url         "${application_repo}"                                \
+          --name            "devops-application-project: ${application_release}" \
+          --description     "Created by Jenkins"                                 \
+          --organization    "DEMO"                                               \
           --insecure
         """
   }
@@ -57,62 +57,83 @@ node {
     def  version = readMavenPom().getVersion()
 
     sh """
-        tower-cli       project update                                              \
-          --name        "devops-application-project: ${artifactId}-${version}"      \
-          --monitor                                                                 \
-          --timeout 60                                                              \
+        tower-cli       project update                                          \
+          --name        "devops-application-project: ${application_release}"    \
+          --monitor                                                             \
+          --timeout 60                                                          \
           --insecure
         """
 
   }
+  stage ('Grant project permissions to team in Ansible Tower') {
+
+      //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+      def  artifactId = readMavenPom().getArtifactId()
+      def  version = readMavenPom().getVersion()
+
+      sh """
+      tower-cli role grant                                                      \
+        --team      "devops"                                                    \
+        --type      "admin"                                                     \
+        --project   "devops-application-project: ${application_release}"        \
+        --insecure
+      """
+    }
+
+
   stage('Publish Job Template in Tower'){
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     def  artifactId = readMavenPom().getArtifactId()
     def  version = readMavenPom().getVersion()
 
     sh """
-    tower-cli       job_template create                                             \
-      --job-type        run                                                         \
-      --name            "devops-application-deploy: ${artifactId}-${version}"       \
-      --description     "Created by Jenkins"                                        \
-      --inventory       "devops"                                                    \
-      --project         "devops-application-project: ${artifactId}-${version}"      \
-      --playbook        "playbooks/deploy.yml"                                      \
-      --credential      "devops-application-credential: ${artifactId}"              \
+    tower-cli       job_template create                                         \
+      --job-type        run                                                     \
+      --name            "devops-application-deploy: ${application_release}"     \
+      --description     "Created by Jenkins"                                    \
+      --inventory       "devops"                                                \
+      --project         "devops-application-project: ${application_release}"    \
+      --playbook        "playbooks/deploy.yml"                                  \
+      --credential      "devops-application-credential: ${artifactId}"          \
+      --ask-inventory-on-launch 1                                               \
+      --ask-credential-on-launch 1                                              \
+      --forks 50                                                                \
       --extra-vars      "---
-app_version: ${artifactId}-${version}
-environment: ${environment}"                                                        \
+app_version: ${application_release}
+environment: ${environment}"                                                    \
       --insecure
     """
   }
 
-stage ('Grant Permissions to team in Ansible Tower') {
+stage ('Grant job_template permissions to team in Ansible Tower') {
 
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
     def  artifactId = readMavenPom().getArtifactId()
     def  version = readMavenPom().getVersion()
 
     sh """
-    tower-cli role grant                                                          \
-      --team "devops"                                                             \
-      --type "admin"                                                              \
-      --job-template    "devops-application-deploy: ${artifactId}-${version}"     \
+    tower-cli role grant                                                        \
+      --team "devops"                                                           \
+      --type "admin"                                                            \
+      --job-template    "devops-application-deploy: ${application_release}"     \
       --insecure
     """
   }
 
 
-  stage ('Deploy with Ansible Tower') {
-
+//  stage ('Deploy with Ansible Tower') {
+//
     //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
-    def  artifactId = readMavenPom().getArtifactId()
-    def  version = readMavenPom().getVersion()
-
-    sh """
-    tower-cli           job launch                                                  \
-      --job-template    "devops-application-deploy: ${artifactId}-${version}"       \
-      --inventory       "devops"                                                    \
-      --credential      "devops-application-credential: ${artifactId}"
-    """
-  }
+//    def  artifactId = readMavenPom().getArtifactId()
+//    def  version = readMavenPom().getVersion()
+//
+//    sh """
+//    tower-cli           job launch                                            \
+//      --job-template    "devops-application-deploy: ${application_release}"   \
+//      --inventory       "devops"                                              \
+//      --credential      "devops-application-credential: ${artifactId}"        \
+//      --monitor                                                               \
+//      --timeout 60
+//    """
+//  }
 }
