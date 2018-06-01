@@ -2,8 +2,8 @@
 ansible-tower
 gce_config
 phillyapp
-tomcat-servers
-jboss-servers
+tomcat
+jboss
 dev
 prod
 
@@ -22,19 +22,25 @@ tag_prod
 [phillyapp:children]
 tag_phillyapp
 
-[tomcat-servers:children]
-tag_tomcat-servers
+[tomcat:children]
+tag_tomcat
 
-[jboss-servers:children]
-tag_jboss-servers
+[jboss:children]
+tag_jboss
 
 [tag_phillyapp]
-dummy
-[tag_jboss-servers]
-dummy
-[tag_tomcat-servers]
-dummy
+[tag_jboss]
+[tag_tomcat]
 [tag_dev]
-dummy
 [tag_prod]
-dummy
+
+[tag_phillyapp:vars]
+dummy=dummy
+[tag_jboss:vars]
+dummy=dummy
+[tag_tomcat:vars]
+dummy=dummy
+[tag_dev:vars]
+dummy=dummy
+[tag_prod:vars]
+dummy=dummy

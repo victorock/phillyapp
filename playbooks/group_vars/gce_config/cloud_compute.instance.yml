@@ -3,7 +3,7 @@ cloud_compute:
     tomcat01:
       name: tomcat01
       size: n1-standard-1
-      image: rhel-7
+      image: centos-7
       boot:
         size: 20
         persistent: no
@@ -14,13 +14,14 @@ cloud_compute:
         subnet: devops-victorock-io
       tags:
         - phillyapp
+        - tomcat
         - tomcat-servers
         - dev
 
     tomcat02:
       name: tomcat02
       size: n1-standard-1
-      image: rhel-7
+      image: centos-7
       boot:
         size: 20
         persistent: no
@@ -31,5 +32,6 @@ cloud_compute:
         subnet: devops-victorock-io
       tags:
         - phillyapp
+        - tomcat
         - tomcat-servers
         - dev

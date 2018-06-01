@@ -7,6 +7,20 @@ cloud_network:
       dst_port: 80
       proto: tcp
 
+    devops-victorock-io-http-8080-all:
+      name: devops-victorock-io-http-8080-all
+      subnet: devops-victorock-io
+      src_cidr: 0.0.0.0/0
+      dst_port: 8080
+      proto: tcp
+
+    devops-victorock-io-https-8443-all:
+      name: devops-victorock-io-http-8443-all
+      subnet: devops-victorock-io
+      src_cidr: 0.0.0.0/0
+      dst_port: 8443
+      proto: tcp
+
     devops-victorock-io-https-all:
       name: devops-victorock-io-https-all
       subnet: devops-victorock-io

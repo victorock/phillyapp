@@ -1,12 +1,12 @@
 - name: "Deploy Application in Tomcat Servers"
-  hosts: phillyapp:&tomcat-servers:&{{ environment | default('dev') }}
+  hosts: tomcat:&phillyapp:&{{ environment | default('dev') }}
   gather_facts: true
   become: true
 
   roles:
     - role: victorock.linux
       autorun: yes
-    - role: samdoran.repo-epel
-    - role: openstack.redhat-subscription
     - role: victorock.tomcat
+      autorun: yes
     - role: victorock.java-webapp
+      autorun: yes
