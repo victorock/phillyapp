@@ -1,16 +1,21 @@
 node {
+  // wipe workspace
+  deleteDir()
+
   parameters {
   // Application variables
-    string(name: 'tower_host',            defaultValue: 'https://ansible-tower.devops.victorock.io',  description: 'Tower Server. ex: https://ansible-tower.devops.victorock.io')
-    string(name: 'tower_credential',      defaultValue: 'ansible-tower.devops.victorock.io-devops',   description: 'Tower Credential from Credentials. ex: ansible-tower.devops.victorock.io-devops')
-    string(name: 'application_repo',      defaultValue: '${gitlabSourceRepoHttpUrl}',                 description: 'The Application GIT repository')
-    string(name: 'application_tag',       defaultValue: '${gitlabAfter}',                             description: 'The Application GIT branch')
+    string(name: 'tower_host',            defaultValue: 'https://ansible-tower.devops.victorock.io',                  description: 'Tower Server. ex: https://ansible-tower.devops.victorock.io')
+    string(name: 'tower_credential',      defaultValue: 'ansible-tower.devops.victorock.io-devops',                   description: 'Tower Credential from Credentials. ex: ansible-tower.devops.victorock.io-devops')
+    string(name: 'application_repo',      defaultValue: 'https://gitlab.devops.victorock.io/victorock/phillyapp.git', description: 'The Application GIT repository')
+    string(name: 'application_tag',       defaultValue: 'phillyapp-1.0',                                              description: 'The Application release')
     choice(name: 'environment',           defaultValue: 'dev',                                        description: 'The environment to deploy', choices: 'dev\ntest\nprod')
   }
 
   stage('Clone Repository'){
-    // Just to check if the repository exists
     git url: "${application_repo}", tag: "${application_tag}"
+    sh """
+      git checkout "${application_tag}"
+    """
   }
 
   stage('Prepare tower-cli Configuration'){
@@ -94,15 +99,15 @@ node {
       --description     "Created by Jenkins"                                    \
       --inventory       "devops"                                                \
       --project         "devops-application-project: ${artifactId}-${version}"  \
-      --playbook        "playbooks/main.yml"                                    \
+      --vault-credential "devops-application-vault: ${artifactId}"              \
+      --playbook        "playbooks/deploy.yml"                                  \
       --credential      "devops-application-credential: ${artifactId}"          \
-      --ask-inventory-on-launch 1                                               \
-      --ask-credential-on-launch 1                                              \
       --forks 50                                                                \
+      --force-on-exists                                                         \
       --extra-vars      "---
-app_version: ${version}
-app_stage: release
-environment: ${environment}"                                                    \
+app_version: \"${version}\"
+app_stage: \"release\"
+environment: \"${environment}\""                                                    \
       --insecure
     """
   }
@@ -117,6 +122,13 @@ stage ('Grant job_template permissions to team in Ansible Tower') {
     tower-cli role grant                                                        \
       --team "devops"                                                           \
       --type "admin"                                                            \
+      --job-template    "devops-application-deploy: ${artifactId}-${version}"   \
+      --insecure
+    """
+    sh """
+    tower-cli role grant                                                        \
+      --team "appops"                                                           \
+      --type "execute"                                                            \
       --job-template    "devops-application-deploy: ${artifactId}-${version}"   \
       --insecure
     """

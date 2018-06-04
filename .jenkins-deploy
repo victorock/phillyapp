@@ -43,7 +43,7 @@ node {
       sh """
         tower-cli       project create                                             \
           --scm-type        "git"                                                  \
-          --scm-branch      "${artifactId}-${version}"                             \
+          --scm-branch      "${application_branch}"                                \
           --scm-url         "${application_repo}"                                  \
           --scm-clean       1                                                      \
           --name            "devops-application-project: ${artifactId}-${version}" \
@@ -90,15 +90,13 @@ node {
     sh """
     tower-cli       job_template create                                         \
       --job-type        run                                                     \
-      --name            "devops-application-deploy: ${artifactId}-${version}"     \
+      --name            "devops-application-deploy: ${artifactId}-${version}"   \
       --description     "Created by Jenkins"                                    \
       --inventory       "devops"                                                \
-      --project         "devops-application-project: ${artifactId}-${version}"    \
-      --vault-credential "devops-application-credential: ${artifactId}"         \
+      --project         "devops-application-project: ${artifactId}-${version}"  \
+      --vault-credential "devops-application-vault: ${artifactId}"              \
       --playbook        "playbooks/deploy.yml"                                  \
       --credential      "devops-application-credential: ${artifactId}"          \
-      --ask-inventory-on-launch 1                                               \
-      --ask-credential-on-launch 1                                              \
       --forks 50                                                                \
       --extra-vars      "---
 app_version: ${version}
@@ -118,6 +116,14 @@ stage ('Grant job_template permissions to team in Ansible Tower') {
     tower-cli role grant                                                        \
       --team "devops"                                                           \
       --type "admin"                                                            \
+      --job-template    "devops-application-deploy: ${artifactId}-${version}"   \
+      --insecure
+    """
+
+    sh """
+    tower-cli role grant                                                        \
+      --team "appops"                                                           \
+      --type "execute"                                                            \
       --job-template    "devops-application-deploy: ${artifactId}-${version}"   \
       --insecure
     """

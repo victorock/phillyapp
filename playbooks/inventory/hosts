@@ -33,14 +33,3 @@ tag_jboss
 [tag_tomcat]
 [tag_dev]
 [tag_prod]
-
-[tag_phillyapp:vars]
-dummy=dummy
-[tag_jboss:vars]
-dummy=dummy
-[tag_tomcat:vars]
-dummy=dummy
-[tag_dev:vars]
-dummy=dummy
-[tag_prod:vars]
-dummy=dummy
